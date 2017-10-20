@@ -3,3 +3,4 @@
 /cache/
 /config/development/
 .phalcon
+/app/config/config.php
