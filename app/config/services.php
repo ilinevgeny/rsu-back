@@ -81,6 +81,11 @@ $di->setShared('db', function () {
     return $connection;
 });
 
+$di->setShared('sphinx', function() {
+    $config = $this->getConfig();
+    $dsn = 'mysql:host=' . $config->sphinx->host . ';port=' . $config->sphinx->port;
+    return new PDO($dsn, '', '', [PDO::ATTR_TIMEOUT => 10]);
+});
 
 /**
  * If the configuration specify the use of metadata adapter use it or use memory otherwise
