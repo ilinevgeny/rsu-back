@@ -5,6 +5,9 @@ namespace rsu\Service\Search;
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\User\Component;
 use rsu\Models\Houses;
+use rsu\models\Regions;
+use rsu\models\Cities;
+use rsu\Models\Streets;
 
 class HousesIndexer extends Component
 {
@@ -28,9 +31,20 @@ class HousesIndexer extends Component
         }
     }
 
-    protected function prepareIndexValues($houses)
+    protected function prepareIndexValues($house)
     {
+        $street = Streets::findById($house->street_id);
+        $city = Cities::findById($house->city_id);
+        $region = Regions::findById($city->region_id);
 
+        $result = [
+            'id' => $house->id,
+            'region' => $this->adapter->quote($region->name),
+            'sity' => $this->adapter->quote($city->name),
+            'street' => $this->adapter->quote($street->name),
+            'number' => $this->adapter->quote($house->number)
+            ];
+        return  $result;
     }
 
     public function __construct()
@@ -40,11 +54,18 @@ class HousesIndexer extends Component
 
     public function insertHouses(\Traversable $houses)
     {
+
         $sql = '';
+        $vals = $strVals = [];
         foreach ($houses as $house) {
-            $sql = "INSERT INTO `rsu_houses_address` VALUES ($house->id, '" . $house->number . "')";
+            $vals = $this->prepareIndexValues($house);
+            $strVals[] = implode(',', $vals);
+        }
+        if (!empty($strVals)) {
+            $sql = sprintf('INSERT INTO %s  VALUES (%s)', self::INDEX_NAME, implode('),(', $strVals));
             $this->execQuery($sql);
         }
+        return count($strVals);
     }
 
     /**

@@ -13,7 +13,6 @@ date_default_timezone_set('Europe/Moscow');
 
 echo '[', date('H:i:s'), '] start of indexing', PHP_EOL;
 
-
 $di = new FactoryDefault();
 
 include APP_PATH . '/config/router.php';
@@ -29,9 +28,7 @@ $housesIndexer = new HousesIndexer();
 $housesIndexer->truncate();
 do {
     $houses = Houses::findAll($offset, $limit);
-//    print_r($houses); exit;
     $offset += $limit;
 } while ($housesIndexer->insertHouses($houses) != 0);
 
-
-//print_r($houses);
+echo '[', date('H:i:s'), '] indexing is completed', PHP_EOL;

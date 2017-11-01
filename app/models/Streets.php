@@ -2,20 +2,11 @@
 
 namespace rsu\Models;
 
-use Phalcon\Mvc\Model;
 
-class Streets extends Model
+class Streets extends AbstractModel
 {
     public $id;
-
     public $name;
+    public $city_id;
 
-    public static function findById($id)
-    {
-        return self::findFirst([
-            'conditions' => 'id = ?0',
-            'bind'       => [$id]
-        ]);
-
-    }
 }
