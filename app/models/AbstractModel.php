@@ -10,7 +10,7 @@ abstract class AbstractModel extends Model
     /**
      * @param $id
      * @param int|string|array $params
-     * @return static
+     * @return self|static
      */
     public static function findById($id)
     {
@@ -20,5 +20,18 @@ abstract class AbstractModel extends Model
         ]);
 
         return $model;
+    }
+
+    /**
+     * @param $offset
+     * @param $limit
+     * @return self|static
+     */
+    public static function findAll($offset, $limit)
+    {
+        return self::find([
+            'limit'  => (int) $limit,
+            'offset' => (int) $offset
+        ]);
     }
 }
