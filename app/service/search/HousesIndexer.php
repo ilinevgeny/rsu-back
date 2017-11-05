@@ -39,10 +39,10 @@ class HousesIndexer extends Component
 
         $result = [
             'id' => $house->id,
-            'region' => $this->adapter->quote($region->name),
             'sity' => $this->adapter->quote($city->name),
             'street' => $this->adapter->quote($street->name),
-            'number' => $this->adapter->quote($house->number)
+            'number' => $this->adapter->quote($house->number),
+            'fid' => $house->id,
             ];
         return  $result;
     }
@@ -54,7 +54,6 @@ class HousesIndexer extends Component
 
     public function insertHouses(\Traversable $houses)
     {
-
         $sql = '';
         $vals = $strVals = [];
         foreach ($houses as $house) {
@@ -63,6 +62,7 @@ class HousesIndexer extends Component
         }
         if (!empty($strVals)) {
             $sql = sprintf('INSERT INTO %s  VALUES (%s)', self::INDEX_NAME, implode('),(', $strVals));
+            $sql = mb_convert_encoding($sql, 'UTF-8');
             $this->execQuery($sql);
         }
         return count($strVals);
@@ -75,5 +75,11 @@ class HousesIndexer extends Component
     public function truncate()
     {
         $this->adapter->exec('TRUNCATE RTINDEX ' . self::INDEX_NAME);
+    }
+
+    protected function prepareQuery($query)
+    {
+        mb_regex_encoding('UTF-8');
+        return trim(mb_eregi_replace('\W+', '|', trim($query)), '|');
     }
 }
