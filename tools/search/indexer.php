@@ -1,8 +1,8 @@
 <?php
 
 use Phalcon\Di\FactoryDefault;
-use rsu\Service\Search\HousesIndexer;
-use rsu\Models\Houses;
+use rsu\service\search\HousesIndexer;
+use rsu\models\Houses;
 
 define('BASE_PATH', dirname(__DIR__));
 define('APP_PATH', BASE_PATH . '/../app');
