@@ -38,7 +38,7 @@ class HousesSearch extends Component
     {
         $result = false;
         $query = $this->prepareQuery($query);
-        $where = $query !== '' ? 'WHERE MATCH(\'' . $query . '\')' : '';
+        $where = $query !== '' ? 'WHERE MATCH(\'' . $query . '*\')' : '';
         $sql = 'SELECT `id`  FROM  ' . self::INDEX_NAME . ' ' . $where . ' LIMIT ' . (int) $limit . ', ' . (int) $offset . ' OPTION  max_matches = ' . ($offset + $limit);
         $sql = mb_convert_encoding($sql, 'UTF-8');
         $result = $this->adapter->query($sql);
