@@ -79,6 +79,7 @@ class IndexController extends ControllerBase
             $jsonArr['code'] = $this->code;
             $jsonArr['name'] = $this->name;
             $jsonArr['result'] = null;
+            header('Content-Type: text/html; charset=utf-8');
             header('Content-Type: application/json');
             return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
         }
@@ -101,6 +102,7 @@ class IndexController extends ControllerBase
         $jsonArr['result']['found'] = count($houses);
         $jsonArr['result']['total'] = $total;
         $jsonArr['result']['list'] = $result;
+        header('Content-Type: text/html; charset=utf-8');
         header('Content-Type: application/json');
         return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
