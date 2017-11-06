@@ -27,13 +27,46 @@ class IndexController extends ControllerBase
 
     }
 
+    public function getPaymentAction($house_id)
+    {
+//        echo "<pre>";
+//        $house = Houses::findById($house_id);
+//        print_r($house->account_id);
+        $this->getToken();
+//        echo "</pre>";
+        exit;
+    }
+
+    protected function getToken()
+    {
+        $ch = curl_init();
+
+
+        curl_setopt($ch, CURLOPT_URL, "https://api.tochka.com/auth/oauth/token");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "username=" . $this->config->tochka['username'] . "&password="
+            . $this->config->tochka['password'] . "&grant_type=password");
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            "Content-Type: application/x-www-form-urlencoded",
+            "Authorization: Basic aXBob25lYXBwOnNlY3JldA=="
+        ));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
     /**
      *
      * @return string
      */
     public function getHousesAction()
     {
-        echo "<pre/>";
         $config = $this->getDI()->getShared('config');
         $offset = $this->request->get('offset', null, 0);
         $limit = $this->request->get('limit', null, 9);
@@ -46,6 +79,7 @@ class IndexController extends ControllerBase
             $jsonArr['code'] = $this->code;
             $jsonArr['name'] = $this->name;
             $jsonArr['result'] = null;
+            header('Content-Type: application/json');
             return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
         }
         foreach ($houses as $house) {
@@ -67,6 +101,7 @@ class IndexController extends ControllerBase
         $jsonArr['result']['found'] = count($houses);
         $jsonArr['result']['total'] = $total;
         $jsonArr['result']['list'] = $result;
+        header('Content-Type: application/json');
         return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
 

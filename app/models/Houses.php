@@ -16,4 +16,6 @@ class Houses extends AbstractModel
 
     public $photo_url;
 
+    public $account_id;
+
 }
