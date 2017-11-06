@@ -5,6 +5,8 @@ use rsu\models\Houses;
 use rsu\models\Cities;
 use rsu\models\Regions;
 use rsu\service\Utils;
+use rsu\models\TochkaAccess;
+use rsu\models\TochkaStatements;
 use  rsu\service\search\HousesSearch;
 
 class IndexController extends ControllerBase
@@ -30,17 +32,90 @@ class IndexController extends ControllerBase
     public function getPaymentAction($house_id)
     {
 //        echo "<pre>";
-//        $house = Houses::findById($house_id);
+        $house = Houses::findById($house_id);
 //        print_r($house->account_id);
-        $this->getToken();
+
+
+//        $token = json_decode($this->getToken());
+//        $token = $token->access_token;
+//        print_r($token);
+//        $account = $this->getTochkaAccountId($house->account_id);
+        $xmlTochkaId = new SimpleXMLElement($this->getTochkaAccountId($house->account_id));
+        foreach ($xmlTochkaId->attributes() as $nameAttr => $valAttr) {
+            if ((string) $nameAttr == 'int_id') {
+                $int_id = (string) $valAttr;
+            }
+        }
+        $token = TochkaAccess::findById(1);
+        $xmlTochkaAccount = new SimpleXMLElement($this->getTochkaAccount($int_id, $token->access_token));
+        echo $this->getTochkaAccount($int_id, $token->access_token);
+//        $xmlTochkaAccount;
+//
+//        print_r();
 //        echo "</pre>";
         exit;
     }
 
-    protected function getToken()
+    protected function getTochkaAccount($int_id, $access_token)
     {
         $ch = curl_init();
 
+        curl_setopt($ch, CURLOPT_URL, "https://api.tochka.com/ws/do/R0101");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS,     "<message_v1 type=\"request\" int_id=\"" . $int_id . "\">
+        <data trn_code=\"R0101\"></data>
+        </message_v1>");
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        "Content-Type: application/xml",
+        "Authorization: Bearer " . $access_token,
+        "Accept: application/xml;"
+    ));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        return $response;
+    }
+
+    protected function getTochkaAccountId($account_id)
+    {
+        $ch = curl_init();
+        $token = TochkaAccess::findById(1);
+//        print_r($token->access_token); exit;
+//        print_r($account_id); exit;
+        curl_setopt($ch, CURLOPT_URL, "https://api.tochka.com/ws/do/R0100");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+        curl_setopt($ch, CURLOPT_POST, TRUE);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "<message_v1 xmlns=\"http://www.anr.ru/types\" type=\"request\">
+        <data trn_code=\"R0100\">
+        <statement_request_v1 xmlns=\"http://www.anr.ru/types\" account_id=\"" . $account_id . "\" account_bic=\"044525999\"
+        start_date=\"2014-01-01T00:00:00+03:00\" end_date=\"2017-12-01T00:00:00+03:00\">
+        </statement_request_v1>
+        </data>
+        </message_v1>");
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+          "Content-Type: application/xml",
+          "Authorization: Bearer " . $token->access_token,
+          "Accept: application/xml;"
+        ));
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return $response;
+
+    }
+    protected function getToken()
+    {
+        $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, "https://api.tochka.com/auth/oauth/token");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
@@ -75,10 +150,12 @@ class IndexController extends ControllerBase
         $search = new HousesSearch();
         $houses = $search->find(mb_convert_encoding($getsearch, 'UTF-8'), $offset, $limit);
         $total = $search->count('');
-        if (count($houses) == 0) {
-            $jsonArr['code'] = $this->code;
-            $jsonArr['name'] = $this->name;
-            $jsonArr['result'] = null;
+        if (count($houses) == 0 && $getsearch != null ) {
+            $jsonArr['code'] = self::STATUS_CODE_OK;
+            $jsonArr['name'] = self::NAME_OK;
+            $jsonArr['result']['found'] = count($houses);
+            $jsonArr['result']['total'] = $total;
+            $jsonArr['result']['list'] = [];
             header('Content-Type: text/html; charset=utf-8');
             header('Content-Type: application/json');
             return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
@@ -109,7 +186,34 @@ class IndexController extends ControllerBase
 
     public function getHouseInfoAction($house_id)
     {
+        $result = $jsonArr = [];
+        $house = Houses::findById($house_id);
+        $street = Streets::findById($house->street_id);
+        $statements = TochkaStatements::findByAccountId($house->account_id);
 
+        foreach ($statements as $key=>$val) {
+//            print_r($val->tochka_account);
+        }
+        $jsonArr['code'] = self::STATUS_CODE_OK;
+        $jsonArr['name'] = self::NAME_OK;
+
+        $daysArr = [];
+        $jsonArr['result'] = [
+            'id' => $house->id,
+            'address' => $street->name . ', ' . $house->number,
+            'img' => [
+                'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
+            ],
+            'bills' => [
+                '2017' => [
+                    '09' => $daysArr
+                ]
+            ]
+        ];
+
+        header('Content-Type: text/html; charset=utf-8');
+        header('Content-Type: application/json');
+        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
 
     /**
