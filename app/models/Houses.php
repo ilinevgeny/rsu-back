@@ -1,6 +1,6 @@
 <?php
 
-namespace rsu\Models;
+namespace rsu\models;
 
 use Phalcon\Mvc\Model;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace rsu\Models;
+namespace rsu\models;
 
 
 class Streets extends AbstractModel

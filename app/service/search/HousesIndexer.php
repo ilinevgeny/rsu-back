@@ -1,13 +1,13 @@
 <?php
 
-namespace rsu\Service\Search;
+namespace rsu\service\search;
 
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\User\Component;
 use rsu\Models\Houses;
 use rsu\models\Regions;
 use rsu\models\Cities;
-use rsu\Models\Streets;
+use rsu\models\Streets;
 
 class HousesIndexer extends Component
 {

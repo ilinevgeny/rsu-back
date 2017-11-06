@@ -1,7 +1,7 @@
 <?php
 
 
-namespace rsu\Service\Search;
+namespace rsu\service\search;
 
 
 use Phalcon\Mvc\User\Component;

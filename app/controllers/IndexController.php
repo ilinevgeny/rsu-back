@@ -1,10 +1,10 @@
 <?php
 
-use rsu\Models\Streets;
-use rsu\Models\Houses;
-use rsu\Models\Cities;
-use rsu\Models\Regions;
-use rsu\Service\Utils;
+use rsu\models\Streets;
+use rsu\models\Houses;
+use rsu\models\Cities;
+use rsu\models\Regions;
+use rsu\service\Utils;
 use  rsu\service\search\HousesSearch;
 
 class IndexController extends ControllerBase
