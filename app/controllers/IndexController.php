@@ -255,7 +255,7 @@ class IndexController extends ControllerBase
             $tmpArr['sum'] = $v['sum'];
             $tmpArr['datetime'] = null;
             $tmpArr['purpose'] = $v['purpose'];
-            $tmpArr['сounterparty'] = null;
+            $tmpArr['counterparty'] = null;
             $tmpArr['category'] = $this->getCategory($v['purpose']);
 //            $tmpArr['category'] = $this->getCategory('Оплата тарифного плана "Эконом" за ведение счёта с 07.09.17 по 30.09.17. Списывается после проведения первой операции, согласно Правилам банковского обслуживания. НДС не предусмотрен.');
 
