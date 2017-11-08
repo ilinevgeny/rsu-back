@@ -1,8 +1,6 @@
 <?php
 
-
 namespace rsu\models;
-
 
 class TochkaAccess extends AbstractModel
 {

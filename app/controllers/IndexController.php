@@ -7,6 +7,8 @@ use rsu\models\Regions;
 use rsu\service\Utils;
 use rsu\models\TochkaAccess;
 use rsu\models\TochkaStatements;
+use rsu\models\TochkaStatementDays;
+use rsu\models\TochkaStatementRecords;
 use  rsu\service\search\HousesSearch;
 
 class IndexController extends ControllerBase
@@ -191,15 +193,21 @@ class IndexController extends ControllerBase
         $result = $jsonArr = [];
         $house = Houses::findById($house_id);
         $street = Streets::findById($house->street_id);
-        $statements = TochkaStatements::findByAccountId($house->account_id);
 
-        foreach ($statements as $key=>$val) {
-//            print_r($val->tochka_account);
-        }
         $jsonArr['code'] = self::STATUS_CODE_OK;
         $jsonArr['name'] = self::NAME_OK;
-
         $daysArr = [];
+        $currMonth = date('m');
+        $currMonth = 10;
+        $currYear = date('Y');
+        $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear);
+
+        foreach ($statementDays as $day) {
+            $daysArr[date('d', $day->timestamp)]['saldo_in'] = $day->day_saldo_in;
+            $daysArr[date('d', $day->timestamp)]['saldo_out'] = $day->day_saldo_out;
+            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id);
+        }
+
         $jsonArr['result'] = [
             'id' => $house->id,
             'address' => $street->name . ', ' . $house->number,
@@ -207,8 +215,8 @@ class IndexController extends ControllerBase
                 'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
             ],
             'bills' => [
-                '2017' => [
-                    '09' => $daysArr
+                 $currYear => [
+                    $currMonth => $daysArr
                 ]
             ]
         ];
@@ -217,7 +225,32 @@ class IndexController extends ControllerBase
         header('Content-Type: application/json');
         return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
+    public function getTransactionAction($house_id, $year, $month)
+    {
+        $daysArr = $jsonArr = [];
+        $jsonArr['code'] = self::STATUS_CODE_OK;
+        $jsonArr['name'] = self::NAME_OK;
+        $jsonArr['result']['days'] = [];
+        $statementDays = TochkaStatementDays::findByMonthYear($month, $year);
 
+        foreach ($statementDays as $day) {
+            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id);
+        }
+        $jsonArr['result']['days'] = $daysArr;
+
+        header('Content-Type: text/html; charset=utf-8');
+        header('Content-Type: application/json');
+        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
+    }
+    public function getTochkaRecords($day_id)
+    {
+        $records =  TochkaStatementRecords::find([
+                'conditions' => 'days_id = ?0',
+                'bind'       => [$day_id]
+            ])->toArray();
+        return $records;
+
+    }
     /**
      * @param $name
      * @param $id
