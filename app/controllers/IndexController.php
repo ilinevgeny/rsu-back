@@ -248,8 +248,29 @@ class IndexController extends ControllerBase
                 'conditions' => 'days_id = ?0',
                 'bind'       => [$day_id]
             ])->toArray();
-        return $records;
+        foreach ($records as $n => $v) {
+            $tmpArr['id'] = $v['id'];
+            $tmpArr['type'] = ($v['debit']) ? 'debit' : 'credit';
+            $tmpArr['sum'] = $v['sum'];
+            $tmpArr['datetime'] = null;
+            $tmpArr['purpose'] = $v['purpose'];
+            $tmpArr['сounterparty'] = null;
+            $tmpArr['category'] = null;
 
+            $result[] = $tmpArr;
+        }
+
+        return $result;
+
+    }
+
+    protected function getCategory($purpose)
+    {
+        $tmpCategoryArr = [
+            'электроэнергию' => 'Электроэнергия',
+            'теплоэнергию' => 'Отопление',
+            'Оплата тарифного плана "Эконом"' => 'Услуги расчетного центра'
+        ];
     }
     /**
      * @param $name
