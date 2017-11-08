@@ -244,6 +244,7 @@ class IndexController extends ControllerBase
     }
     public function getTochkaRecords($day_id)
     {
+        $result = [];
         $records =  TochkaStatementRecords::find([
                 'conditions' => 'days_id = ?0',
                 'bind'       => [$day_id]
@@ -255,7 +256,8 @@ class IndexController extends ControllerBase
             $tmpArr['datetime'] = null;
             $tmpArr['purpose'] = $v['purpose'];
             $tmpArr['сounterparty'] = null;
-            $tmpArr['category'] = null;
+            $tmpArr['category'] = $this->getCategory($v['purpose']);
+//            $tmpArr['category'] = $this->getCategory('Оплата тарифного плана "Эконом" за ведение счёта с 07.09.17 по 30.09.17. Списывается после проведения первой операции, согласно Правилам банковского обслуживания. НДС не предусмотрен.');
 
             $result[] = $tmpArr;
         }
@@ -269,8 +271,16 @@ class IndexController extends ControllerBase
         $tmpCategoryArr = [
             'электроэнергию' => 'Электроэнергия',
             'теплоэнергию' => 'Отопление',
-            'Оплата тарифного плана "Эконом"' => 'Услуги расчетного центра'
+            'плата тарифного плана "Эконом"' => 'Услуги расчетного центра'
         ];
+        $catecory = 'Общие расходы';
+        foreach ($tmpCategoryArr as $key => $val) {
+            if(strpos( $purpose, $key)) {
+                $catecory = $val;
+                break;
+            }
+        }
+        return $catecory;
     }
     /**
      * @param $name
