@@ -337,7 +337,7 @@ class IndexController extends ControllerBase
                     'message' => "Адрес необходимо указать"
                 ]
             ));
-        $messageValidation = $validation->validate($_GET);
+        $messageValidation = $validation->validate($_REQUEST);
 
         $fieldsArr = [];
 
