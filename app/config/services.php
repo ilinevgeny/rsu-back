@@ -7,6 +7,7 @@ use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 use Phalcon\Flash\Direct as Flash;
+use rsu\service\mail\Mailer;
 
 /**
  * Shared configuration service
@@ -85,6 +86,11 @@ $di->setShared('sphinx', function() {
     $config = $this->getConfig();
     $dsn = 'mysql:host=' . $config->sphinx->host . ';port=' . $config->sphinx->port;
     return new PDO($dsn, '', '', [PDO::ATTR_TIMEOUT => 10]);
+});
+
+$di->setShared('mailer', function() {
+    $config = $this->getConfig();
+    return new Mailer((array) $config->mail);
 });
 
 /**

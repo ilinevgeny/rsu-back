@@ -10,6 +10,11 @@ use rsu\models\TochkaStatements;
 use rsu\models\TochkaStatementDays;
 use rsu\models\TochkaStatementRecords;
 use  rsu\service\search\HousesSearch;
+use rsu\models\Category;
+use Phalcon\Validation\Validator\PresenceOf;
+use Phalcon\Validation;
+use Phalcon\Validation\Validator\Digit as DigitValidator;
+use Phalcon\Validation\Validator\StringLength as StringLength;
 
 class IndexController extends ControllerBase
 {
@@ -17,10 +22,12 @@ class IndexController extends ControllerBase
     const NAME_NOT_FOUND = 'Not Found';
     const NAME_INTERNAL_ERROR = 'Internal Server Error';
     const NAME_BAD_RQUEST = 'Bad request';
+    const NAME_BAD_FIELD = 'Bad field';
     const STATUS_CODE_OK = '200';
     const STATUS_CODE_NOT_FOUND = '404';
     const STATUS_CODE_SERVER_ERROR = '500';
     const STATUS_CODE_BAD_REQUEST = '401';
+    const STATUS_CODE_BAD_FIELD = '499';
 
 
     public $code = self::STATUS_CODE_NOT_FOUND;
@@ -257,7 +264,6 @@ class IndexController extends ControllerBase
             $tmpArr['purpose'] = $v['purpose'];
             $tmpArr['counterparty'] = null;
             $tmpArr['category'] = $this->getCategory($v['purpose']);
-//            $tmpArr['category'] = $this->getCategory('Оплата тарифного плана "Эконом" за ведение счёта с 07.09.17 по 30.09.17. Списывается после проведения первой операции, согласно Правилам банковского обслуживания. НДС не предусмотрен.');
 
             $result[] = $tmpArr;
         }
@@ -282,6 +288,85 @@ class IndexController extends ControllerBase
         }
         return $catecory;
     }
+
+    public function sendInvitationAction()
+    {
+        $name = $this->request->get('name', null, 0);
+        $phone = $this->request->get('phone', null, 0);
+        $address = $this->request->get('address', null, 0);
+
+        $to = $this->config->mail->to;
+        $subject = $this->config->mail->subject;
+
+        $jsonArr = [];
+        $jsonArr['code'] = self::STATUS_CODE_OK;
+        $jsonArr['name'] = self::NAME_OK;
+        $jsonArr['result'] = $this->config->mail->message;
+
+
+        $validation = new Validation();
+
+        $validation->add('name', new PresenceOf(
+                [
+                    'message' => 'Имя необходимо указать'
+                ]
+            ));
+
+        $validation->add('phone', new PresenceOf(
+                [
+                    'message' => "Телефон необходимо указать"
+                ]
+            ));
+
+        $validation->add('phone', new StringLength([
+            'max' => 11,
+            'min' => 5,
+            "messageMaximum" => "Пожалуйста, укажите 11 цифр телефона",
+            "messageMinimum" => "Пожалуйста, укажите 11 цифр телефона"
+        ]));
+
+        $validation->add('phone',
+            new DigitValidator(
+                [
+                    'message' => "Телефон должен быть только числами"
+                ]
+            ));
+
+        $validation->add('address', new PresenceOf(
+                [
+                    'message' => "Адрес необходимо указать"
+                ]
+            ));
+        $messageValidation = $validation->validate($_GET);
+
+        $fieldsArr = [];
+
+        if (count($messageValidation)) {
+            foreach ($messageValidation as $messageVal) {
+                $fieldsArr[$messageVal->getField()] = $messageVal->getMessage();
+            }
+
+            $jsonArr['code'] = self::STATUS_CODE_BAD_FIELD;
+            $jsonArr['name'] = self::NAME_BAD_FIELD;
+            $jsonArr['result'] = $fieldsArr;
+        } else {
+            $message = "<p><strong>Имя:</strong> $name</p><p><strong>Телефон:</strong> $phone</p><p><strong>Адрес дома:</strong> $address</p>";
+            try {
+                $this->mailer->sendMail($to, $subject, $message);
+
+            } catch (Exception $exception) {
+                $jsonArr['code'] = self::STATUS_CODE_SERVER_ERROR;
+                $jsonArr['name'] = self::NAME_INTERNAL_ERROR;
+                $jsonArr['result'] = '';
+
+            }
+        }
+
+        header('Content-Type: text/html; charset=utf-8');
+        header('Content-Type: application/json');
+        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
+
+    }
     /**
      * @param $name
      * @param $id
@@ -297,5 +382,37 @@ class IndexController extends ControllerBase
         return $code;
     }
 
+    public function createCategoryAction()
+    {
+        $categoryArr = [
+            'Отопление',
+            'ГВС',
+            'ХВС',
+            'Электроэнергия',
+            'Услуги по управлению МКД',
+            'Услуги расчетного центра',
+            'Паспортный учет',
+            'Услуги Call-центра',
+            'Содержание придомовой территории',
+            'Содержание подъездов и МОП                 ',
+            'Инженерные системы Техническое обслуживание',
+            'Инженерные системы Аварийное обслуживание',
+            'Лифты Техническое обслуживание',
+            'Лифты Аварийное обслуживание',
+            'ИТП Техническое обслуживание',
+            'Текущий ремонт общего имущества',
+            'Организация вывоза ТБО',
+            'Обслуживание домофонов',
+            'Обслуживание видеонаблюдения'
+        ];
+
+        foreach ($categoryArr as $val) {
+            echo hash("crc32", $val) . "<br>";
+            $catecory = new Category();
+            $catecory->name = mb_convert_encoding($val, 'UTF-8');
+            $catecory->hash = hash("crc32", $val);
+            $catecory->create();
+        }
+    }
 }
 
