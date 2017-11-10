@@ -208,25 +208,38 @@ class IndexController extends ControllerBase
         $currMonth = 10;
         $currYear = date('Y');
         $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear);
+        $days = [];
+        foreach ($statementDays as $k=>$day) {
+            $daysArr['day'] = date('d', $day->timestamp);
+            $daysArr['saldo_in'] = $day->day_saldo_in;
+            $daysArr['saldo_out'] = $day->day_saldo_out;
+            $daysArr['transactions'] = $this->getTochkaRecords($day->id);
+            $days[] = $daysArr;
+        }
+        $yearsArr = ['2017'];
+        $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
+        foreach ($statMonths as $val) {
 
-        foreach ($statementDays as $day) {
-            $daysArr[date('d', $day->timestamp)]['saldo_in'] = $day->day_saldo_in;
-            $daysArr[date('d', $day->timestamp)]['saldo_out'] = $day->day_saldo_out;
-            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id);
+            if ($val['month'] == $currMonth) {
+                $monthsArr[] = ['month'=>$val['month'], 'days'=>$days];
+            } else {
+                $monthsArr[] = ['month'=>$val['month'], 'days'=>null];
+            }
+
         }
 
+        $bills = [];
+        foreach ($yearsArr as $year) {
+            $bills[] = ['year' => $year, 'months'=>$monthsArr];
+        }
         $jsonArr['result'] = [
             'id' => $house->id,
             'address' => $street->name . ', ' . $house->number,
             'img' => [
                 'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
             ],
-            'bills' => [
-                 $currYear => [
-                    $currMonth => $daysArr
-                ]
-            ]
-        ];
+            'bills' => $bills
+            ];
 
         header('Content-Type: text/html; charset=utf-8');
         header('Content-Type: application/json');
