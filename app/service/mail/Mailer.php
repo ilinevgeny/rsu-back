@@ -75,8 +75,12 @@ class Mailer extends Component
             'DATA',
 
             'Subject: =?utf-8?B?' . base64_encode($subject) . '?=' . $rn .
+            'Organization: РСУ 7 Управляющая компания' . $rn .
             'MIME-Version: 1.0' . $rn .
             'Content-type: text/html; charset=utf-8' . $rn .
+            'X-Priority: 1' .  $rn .
+//            'X-MSMail-Priority: High' .  $rn .
+            'Importance: High' .  $rn .
             'To: ' . $to . $rn .
             'From: =?utf-8?B?' . base64_encode($fromEmail) . '?= <' . $fromName . '>' . $rn . $rn .
             $message . $rn . '.',
