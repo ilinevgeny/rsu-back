@@ -213,7 +213,7 @@ class IndexController extends ControllerBase
             $daysArr['day'] = date('d', $day->timestamp);
             $daysArr['saldo_in'] = $day->day_saldo_in;
             $daysArr['saldo_out'] = $day->day_saldo_out;
-            $daysArr['transactions'] = $this->getTochkaRecords($day->id);
+            $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
         $yearsArr = ['2017'];
@@ -254,7 +254,7 @@ class IndexController extends ControllerBase
         $statementDays = TochkaStatementDays::findByMonthYear($month, $year);
 
         foreach ($statementDays as $day) {
-            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id);
+            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id, $day->date);
         }
         $jsonArr['result']['days'] = $daysArr;
 
@@ -262,7 +262,7 @@ class IndexController extends ControllerBase
         header('Content-Type: application/json');
         return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
-    public function getTochkaRecords($day_id)
+    public function getTochkaRecords($day_id, $datetime)
     {
         $result = [];
         $records =  TochkaStatementRecords::find([
@@ -273,7 +273,7 @@ class IndexController extends ControllerBase
             $tmpArr['id'] = $v['id'];
             $tmpArr['type'] = ($v['debit']) ? 'debit' : 'credit';
             $tmpArr['sum'] = $v['sum'];
-            $tmpArr['datetime'] = null;
+            $tmpArr['datetime'] = $datetime;
             $tmpArr['purpose'] = $v['purpose'];
             $tmpArr['counterparty'] = null;
             $tmpArr['category'] = $this->getCategory($v['purpose']);
