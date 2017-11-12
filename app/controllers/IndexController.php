@@ -252,11 +252,15 @@ class IndexController extends ControllerBase
         $jsonArr['name'] = self::NAME_OK;
         $jsonArr['result']['days'] = [];
         $statementDays = TochkaStatementDays::findByMonthYear($month, $year);
-
+        $listDays = [];
         foreach ($statementDays as $day) {
-            $daysArr[date('d', $day->timestamp)]['transactions'] = $this->getTochkaRecords($day->id, $day->date);
+            $daysArr['day'] = date('d', $day->timestamp);
+            $daysArr['saldo_in'] = $day->day_saldo_in;
+            $daysArr['saldo_out'] = $day->day_saldo_out;
+            $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
+            $listDays[] = $daysArr;
         }
-        $jsonArr['result']['days'] = $daysArr;
+        $jsonArr['result']['days']= $listDays;
 
         header('Content-Type: text/html; charset=utf-8');
         header('Content-Type: application/json');
@@ -416,7 +420,9 @@ class IndexController extends ControllerBase
             'Текущий ремонт общего имущества',
             'Организация вывоза ТБО',
             'Обслуживание домофонов',
-            'Обслуживание видеонаблюдения'
+            'Обслуживание видеонаблюдения',
+            'Оплаты жителей',
+            'Оплаты провайдеров'
         ];
 
         foreach ($categoryArr as $val) {
