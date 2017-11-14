@@ -1,5 +1,7 @@
 <?php
 
+namespace rsu\controllers;
+
 use rsu\models\Streets;
 use rsu\models\Houses;
 use rsu\models\Cities;
@@ -28,7 +30,8 @@ class IndexController extends ControllerBase
     const STATUS_CODE_SERVER_ERROR = '500';
     const STATUS_CODE_BAD_REQUEST = '401';
     const STATUS_CODE_BAD_FIELD = '499';
-
+    const MAIL_SUBJECT_QUESTION = 'Вопрос по транзакции';
+    const MAIL_RESPOND_QUESTION = 'Спасибо за ваш вопрос. В ближайшее время мы с вами свяжемся.';
 
     public $code = self::STATUS_CODE_NOT_FOUND;
     public $name = self::NAME_NOT_FOUND;
@@ -36,6 +39,81 @@ class IndexController extends ControllerBase
     public function indexAction()
     {
 
+    }
+
+    public function sendQuestionAction()
+    {
+        $id = $this->request->get('id', null, 0);
+        $name = $this->request->get('name', null, 0);
+        $email = $this->request->get('email', null, 0);
+        $question = $this->request->get('q', null, 0);
+
+        $to = $this->config->mail->to;
+        $subject = self::MAIL_SUBJECT_QUESTION;
+
+        $jsonArr = [];
+        $jsonArr['code'] = self::STATUS_CODE_OK;
+        $jsonArr['name'] = self::NAME_OK;
+        $jsonArr['result'] = self::MAIL_RESPOND_QUESTION;
+
+
+        $validation = new Validation();
+
+        $validation->add('name', new PresenceOf(
+            [
+                'message' => 'Имя необходимо указать'
+            ]
+        ));
+
+        $validation->add('email', new PresenceOf(
+            [
+                'message' => "Email необходимо указать"
+            ]
+        ));
+
+        $validation->add('q', new PresenceOf(
+            [
+                'message' => "Укажите ваш вопрос"
+            ]
+        ));
+        $messageValidation = $validation->validate($_REQUEST);
+
+        $fieldsArr = [];
+
+        if (count($messageValidation)) {
+            foreach ($messageValidation as $messageVal) {
+                $fieldsArr[$messageVal->getField()] = $messageVal->getMessage();
+            }
+
+            $jsonArr['code'] = self::STATUS_CODE_BAD_FIELD;
+            $jsonArr['name'] = self::NAME_BAD_FIELD;
+            $jsonArr['result'] = $fieldsArr;
+        } else {
+            $transactionArr = TochkaStatementRecords::findById($id)->toArray();
+
+            $datetime = TochkaStatementDays::findById($transactionArr['days_id']);
+            $transactionArr['datetime'] = date('d-m-Y', time($datetime->date));
+            $type = ($transactionArr['debit']) ? 'Расходы' : 'Доходы';
+            $message = "<p><strong>Транзакция:</strong>
+			<p><strong>Дата:</strong> " . $transactionArr['datetime'] . "</p> 
+			<p><strong>Категория: </strong> " . $type . "</p> 
+			<p><strong>Описание: </strong> " . $transactionArr['purpose'] . "</p> 
+			<p><strong>Сумма</strong> " . $transactionArr['sum'] . "</p> 
+		    </p> <p><strong>Имя:</strong> $name</p><p><strong>Email:</strong> $email</p><p><strong>Вопрос:</strong> $question</p>";
+            try {
+                $this->mailer->sendMail($to, $subject, $message);
+
+            } catch (Exception $exception) {
+                $jsonArr['code'] = self::STATUS_CODE_SERVER_ERROR;
+                $jsonArr['name'] = self::NAME_INTERNAL_ERROR;
+                $jsonArr['result'] = '';
+
+            }
+        }
+
+        header('Content-Type: text/html; charset=utf-8');
+        header('Content-Type: application/json');
+        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
     }
 
     public function getPaymentAction($house_id)

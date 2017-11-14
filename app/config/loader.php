@@ -13,4 +13,9 @@ $loader->registerDirs(
     ]
 )->register();
 
-$loader->registerNamespaces(['rsu' => APP_PATH])->register();
+$loader->registerNamespaces([
+    'rsu\controllers' => APP_PATH . '/controllers/',
+    'rsu\models' => APP_PATH. '/models/' ,
+    'rsu\service' => APP_PATH. '/service/' ,
+    'rsu' => APP_PATH. '/' ,
+    ])->register();
