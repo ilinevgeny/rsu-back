@@ -22,4 +22,14 @@ class TochkaStatementDays extends AbstractModel
             'bind'       => [$month, $year]
         ]);
     }
+
+    public static function findByDate($date)
+    {
+        $model = parent::find([
+            'conditions' => 'date = ?0',
+            'bind'       => [$date]
+        ]);
+
+        return $model;
+    }
 }

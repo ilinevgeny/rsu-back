@@ -12,11 +12,12 @@ class TochkaStatements extends AbstractModel
     public $saldo_out;
     public $turn_over_dt;
     public $turn_over_kt;
+    public $timestamp;
 
 
     public static function findByAccountId($account_id)
     {
-        $model = parent::find([
+        $model = parent::findFirst([
             'conditions' => 'tochka_account = ?0',
             'bind'       => [$account_id]
         ]);
