@@ -182,7 +182,6 @@ class IndexController extends ControllerBase
         foreach ($statementDays as $k=>$day) {
             $actual = date('d.m.Y', strtotime(TochkaStatements::findFirst(['conditions'=>'id = ?0', 'bind' => [$day->tochka_statement_id]])->timestamp));
             $daysArr['day'] = date('d', $day->timestamp);
-            $daysArr['actual'] = 'Актуально на ' . $actual;
             $daysArr['saldo_in'] = $day->day_saldo_in;
             $daysArr['saldo_out'] = $day->day_saldo_out;
             $daysArr['сounterparty'] = 'ООО "ЕРКЦ"';
@@ -191,6 +190,7 @@ class IndexController extends ControllerBase
             $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
+        $jsonArr['actual'] = $actual;
         $yearsArr = ['2017'];
         $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
         foreach ($statMonths as $val) {
