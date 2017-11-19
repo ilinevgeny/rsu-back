@@ -11,6 +11,7 @@ class TochkaStatementRecords extends AbstractModel
     public $debit;
     public $purpose;
     public $sum;
+    public $counterparty;
 
     public static function findRecordsByIds($idArr)
     {

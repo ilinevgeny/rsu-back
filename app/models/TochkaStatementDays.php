@@ -16,7 +16,7 @@ class TochkaStatementDays extends AbstractModel
     public static function findByMonthYear($month, $year)
     {
         return self::find([
-            'columns' => 'id, date, day_saldo_in, day_saldo_out, UNIX_TIMESTAMP(date) as timestamp',
+            'columns' => 'id, tochka_statement_id, date, day_saldo_in, day_saldo_out, UNIX_TIMESTAMP(date) as timestamp',
             'order' => 'date ASC',
             'conditions' => 'MONTH(date) = ?0 AND YEAR(date) = ?1',
             'bind'       => [$month, $year]

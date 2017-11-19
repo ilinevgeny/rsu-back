@@ -176,14 +176,18 @@ class IndexController extends ControllerBase
         $jsonArr['name'] = self::NAME_OK;
         $daysArr = [];
         $currMonth = date('m');
-        $currMonth = 10;
         $currYear = date('Y');
         $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear);
         $days = [];
         foreach ($statementDays as $k=>$day) {
+            $actual = date('d.m.Y', strtotime(TochkaStatements::findFirst(['conditions'=>'id = ?0', 'bind' => [$day->tochka_statement_id]])->timestamp));
             $daysArr['day'] = date('d', $day->timestamp);
+            $daysArr['actual'] = 'Актуально на ' . $actual;
             $daysArr['saldo_in'] = $day->day_saldo_in;
             $daysArr['saldo_out'] = $day->day_saldo_out;
+            $daysArr['сounterparty'] = 'ООО "ЕРКЦ"';
+            $daysArr['category'] = 'ГВС';
+
             $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
@@ -252,7 +256,7 @@ class IndexController extends ControllerBase
             $tmpArr['sum'] = $v['sum'];
             $tmpArr['datetime'] = $datetime;
             $tmpArr['purpose'] = $v['purpose'];
-            $tmpArr['counterparty'] = null;
+            $tmpArr['counterparty'] = $v['counterparty'];
             $tmpArr['category'] = $this->getCategory($v['purpose']);
 
             $result[] = $tmpArr;
@@ -267,7 +271,8 @@ class IndexController extends ControllerBase
         $tmpCategoryArr = [
             'электроэнергию' => 'Электроэнергия',
             'теплоэнергию' => 'Отопление',
-            'плата тарифного плана "Эконом"' => 'Услуги расчетного центра'
+            'плата тарифного плана "Эконом"' => 'Услуги расчетного центра',
+            'Сборы с населения' => 'Доходы '
         ];
         $catecory = 'Общие расходы';
         foreach ($tmpCategoryArr as $key => $val) {

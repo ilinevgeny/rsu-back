@@ -55,7 +55,7 @@ class TochkaUploader extends Component
 //			    print_r($tochkaStatement); exit;
                 foreach ($tochkaStatement as $k => $v) {
                     $timeStatement = ($k == '@attributes') ? $v['time'] : '';
-//                    print_r($timeStatement); exit;
+//                    print_r(strtotime($timeStatement)); exit;
 
                     if($k == 'data') {
                             echo $tochkaStatement['data']['statement_response_v1']['start_date'] . PHP_EOL;
@@ -65,7 +65,7 @@ class TochkaUploader extends Component
                             $statement->saldo_out = $tochkaStatement['data']['statement_response_v1']['saldo_out'];
                             $statement->turn_over_dt = $tochkaStatement['data']['statement_response_v1']['turn_over_dt'];
                             $statement->turn_over_kt = $tochkaStatement['data']['statement_response_v1']['turn_over_kt'];
-                            $statement->timestamp = $timeStatement;
+//                            $statement->timestamp = strtotime($timeStatement);
                             //@todo add exception to create
                             if($statement->update()) {
                                 foreach ($tochkaStatement['data']['statement_response_v1']['days'] as $arrData) {
@@ -88,28 +88,29 @@ class TochkaUploader extends Component
                                             $tochkaStatementDay->day_saldo_in = $day['@attributes']['day_saldo_in'];
                                             $tochkaStatementDay->day_turn_over_dt = $day['@attributes']['day_turn_over_dt'];
                                             $tochkaStatementDay->day_turn_over_kt = $day['@attributes']['day_turn_over_kt'];
+                                            $tochkaStatementDay->total_records = count($day['records']['record']);
                                             if ($tochkaStatementDay->create()) {
 
 
                                                 if(isset($day['records']['record']['@attributes'])) {
                                                     $tochkaStatementRecord = new TochkaStatementRecords();
                                                     $tochkaStatementRecord->days_id = $tochkaStatementDay->id;
-                                                    $tochkaStatementRecord->debit = ($day['records']['record']['@attributes']['debit']) ? 1 : 0;
+                                                    $tochkaStatementRecord->debit = ($day['records']['record']['@attributes']['debit'] == 'true') ? 1 : 0;
                                                     $tochkaStatementRecord->purpose = $day['records']['record']['@attributes']['purpose'];
                                                     $tochkaStatementRecord->sum = $day['records']['record']['@attributes']['sum'];
+                                                    $tochkaStatementRecord->counterparty = $day['records']['record']['@attributes']['related_name'];
                                                     $tochkaStatementRecord->create();
                                                 } else {
                                                     foreach($day['records']['record'] as $record) {
                                                         $tochkaStatementRecord = new TochkaStatementRecords();
                                                         $tochkaStatementRecord->days_id = $tochkaStatementDay->id;
-                                                        $tochkaStatementRecord->debit = ($record['@attributes']['debit']) ? 1 : 0;
+                                                        $tochkaStatementRecord->debit = ($record['@attributes']['debit'] == 'true') ? 1 : 0;
                                                         $tochkaStatementRecord->purpose = $record['@attributes']['purpose'];
                                                         $tochkaStatementRecord->sum = $record['@attributes']['sum'];
+                                                        $tochkaStatementRecord->counterparty = $record['@attributes']['related_name'];
                                                         $tochkaStatementRecord->create();
                                                     }
                                                 }
-
-
                                             }
                                         }
 
@@ -170,7 +171,7 @@ class TochkaUploader extends Component
         $response = simplexml_load_string(curl_exec($ch));
         curl_close($ch);
 
-//        $xml = simplexml_load_string(file_get_contents('respons.txt'));
+        $response = simplexml_load_string(file_get_contents('respons.txt'));
 
         $json = json_encode((array)$response);
         $statementsArr = json_decode($json,TRUE);
