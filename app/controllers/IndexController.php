@@ -213,7 +213,8 @@ class IndexController extends ControllerBase
             'img' => [
                 'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
             ],
-            'bills' => $bills
+            'bills' => $bills,
+            'actual' => $jsonArr['actual']
             ];
 
         header('Content-Type: text/html; charset=utf-8');
