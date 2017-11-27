@@ -71,7 +71,7 @@ class ControllerBase extends Controller
 
             $this->flash->error ('Нет доступа к  ' . $arrPages[$actionName] );
             $dispatcher->forward([
-                        'controller' => 'Auth',
+                        'controller' => 'auth',
                         'action' => 'login'
                     ]);
         }
