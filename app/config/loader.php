@@ -9,7 +9,8 @@ $loader->registerDirs(
     [
         $config->application->controllersDir,
         $config->application->modelsDir,
-        $config->application->serviceDir
+        $config->application->serviceDir,
+//        $config->application->backendDir
     ]
 )->register();
 
@@ -17,5 +18,6 @@ $loader->registerNamespaces([
     'rsu\controllers' => APP_PATH . '/controllers/',
     'rsu\models' => APP_PATH. '/models/' ,
     'rsu\service' => APP_PATH. '/service/' ,
+    'rsu\controllers\admin' => APP_PATH . '/controllers/admin/',
     'rsu' => APP_PATH. '/' ,
     ])->register();

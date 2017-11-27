@@ -1,0 +1,125 @@
+.container {
+    padding-right: 1px !important;
+    padding-left: 1px !important;
+}
+
+@media (min-width: 320px) and (max-width: 766px) {
+    .alert {
+        margin-top: 0rem !important;
+        margin-bottom: 0rem !important;
+        font-size: .8rem;
+        text-align: center !important;
+        border-radius: 0px !important;
+        width: 100%;
+        position: absolute !important;
+        left: 0;
+    }
+    form {
+        top: 2rem;
+        position: relative;
+    }
+    .login .btn-primary {
+        width: 18rem;
+    }
+    .row-record-edit td {
+        padding: .3rem 0 !important;
+    }
+    .row-record-edit .btn-primary, .row-record-edit .btn-danger {
+        width: 7rem;
+        font-size: .6rem !important;
+    }
+    .row-record-edit .btn-danger {
+        width: 5rem;
+    }
+    .row-record-edit .btn-outline-primary {
+        font-size: .6rem !important;
+    }
+    .-message {
+        font-size: .7rem;
+    }
+    .statement-edit-area {
+        font-size: .8rem;
+        width: 100%;
+    }
+    footer {
+        line-height: .9rem;
+    }
+    .footer-content {
+        font-size: .7rem;
+        padding: 1rem 1rem;
+    }
+}
+@media (min-width: 980px) and (max-width: 1280px) {
+    .navbar {
+        margin-top: 0px !important;
+    }
+    .statement-table td {
+        font-size: .6rem;
+    }
+
+    .row-record-edit .btn-primary, .row-record-edit .btn-danger {
+        width: 6.5rem;
+        font-size: .7rem !important;
+    }
+
+    /* for debugging */
+    body {
+        /*background-color: red !important;*/
+    }
+}
+/*Samsung galaxy Tab landscape, Ipad portrait, Ipad mini portrait*/
+@media (min-width: 767px) and (max-width: 979px) {
+    .alert {
+
+    }
+    .navbar {
+        margin-top: 0px !important;
+    }
+    .statement-table td {
+        font-size: .6rem;
+    }
+    body {
+        /*background-color: green !important;*/
+    }
+}
+/*Samsung galaxy Tab portrait*/
+@media (min-width: 481px) and (max-width: 766px) {
+    .navbar {
+        margin-top: 0px !important;
+    }
+    .statement-table td {
+        font-size: .8rem;
+    }
+    .purpose-column a{
+        font-size: .8rem;
+    }
+    .container {
+        max-width: 100% !important;
+    }
+    body {
+        /*background-color: yellow !important;*/
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        margin-top: 0px;
+        width: 100%;
+    }
+    .statement-table td {
+        font-size: .5rem;
+    }
+    .statement-table th {
+        font-size: .7rem;
+    }
+    .purpose-column a{
+        font-size: .6rem;
+    }
+    .purpose-column {
+        font-size: .6rem !important;
+    }
+
+    body {
+        /*background-color: #14f2c7 !important;*/
+    }
+}
