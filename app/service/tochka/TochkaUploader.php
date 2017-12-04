@@ -65,6 +65,7 @@ class TochkaUploader extends Component
                         $statement->saldo_out = $tochkaStatement['data']['statement_response_v1']['saldo_out'];
                         $statement->turn_over_dt = $tochkaStatement['data']['statement_response_v1']['turn_over_dt'];
                         $statement->turn_over_kt = $tochkaStatement['data']['statement_response_v1']['turn_over_kt'];
+                        $statement->timestamp = date('Y-m-d H:i:s');
 
                         //@todo add exception to create
                         if($statement->update()) {

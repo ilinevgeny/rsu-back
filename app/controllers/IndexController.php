@@ -141,8 +141,8 @@ class IndexController extends ControllerBase
             header('Content-Type: application/json');
             return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
         }
-        foreach ($houses as $house) {
-            $house = Houses::findById($house);
+        foreach ($houses as $item) {
+            $house = Houses::findById($item);
             $street = Streets::findById($house->street_id);
             $city = Cities::findById($house->city_id);
             $region = Regions::findById($city->region_id);
@@ -170,30 +170,40 @@ class IndexController extends ControllerBase
     {
         $result = $jsonArr = [];
         $house = Houses::findById($house_id);
+	    $jsonArr['code'] = self::STATUS_CODE_OK;
+	    $jsonArr['name'] = self::NAME_OK;
+        if($house->account_id == 0) {
+        	$jsonArr['result'] = null;
+	        header('Content-Type: text/html; charset=utf-8');
+	        header('Content-Type: application/json');
+	        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
+        }
         $street = Streets::findById($house->street_id);
 
-        $jsonArr['code'] = self::STATUS_CODE_OK;
-        $jsonArr['name'] = self::NAME_OK;
+
         $daysArr = [];
         $currMonth = date('m');
         $currYear = date('Y');
-        $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear);
+	    $tochkaStatement = TochkaStatements::findFirst(
+		    ['conditions'=>'tochka_account = ?0', 'bind' => [$house->account_id]]);
+        $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear, $tochkaStatement->id);
         $days = [];
-         do {
-             $statementDays = TochkaStatementDays::findByMonthYear(--$currMonth, $currYear);
-         } while($statementDays->count() == 0);
+        if ($statementDays->count() == 0) {
+	        do {
+		        $statementDays = TochkaStatementDays::findByMonthYear(--$currMonth, $currYear, $tochkaStatement->id);
+	        } while($statementDays->count() == 0);
+        }
+
         foreach ($statementDays as $k=>$day) {
-            $actual = date('d.m.Y', strtotime(TochkaStatements::findFirst(['conditions'=>'id = ?0', 'bind' => [$day->tochka_statement_id]])->timestamp));
             $daysArr['day'] = date('d', $day->timestamp);
             $daysArr['saldo_in'] = $day->day_saldo_in;
             $daysArr['saldo_out'] = $day->day_saldo_out;
-            $daysArr['сounterparty'] = 'ООО "ЕРКЦ"';
-            $daysArr['category'] = 'ГВС';
-
+//            $daysArr['сounterparty'] = '';
+//            $daysArr['category'] = '';
             $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
-        $jsonArr['actual'] = $actual;
+        $jsonArr['actual'] = date('d.m.Y', strtotime($tochkaStatement->timestamp));
 
         $yearsArr = ['2017'];
         $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
