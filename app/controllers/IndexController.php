@@ -242,7 +242,10 @@ class IndexController extends ControllerBase
         $jsonArr['code'] = self::STATUS_CODE_OK;
         $jsonArr['name'] = self::NAME_OK;
         $jsonArr['result']['days'] = [];
-        $statementDays = TochkaStatementDays::findByMonthYear($month, $year);
+        $house = Houses::findById($house_id);
+	    $tochkaStatement = TochkaStatements::findFirst(
+		    ['conditions'=>'tochka_account = ?0', 'bind' => [$house->account_id]]);
+        $statementDays = TochkaStatementDays::findByMonthYear($month, $year, $tochkaStatement->id);
         $listDays = [];
         foreach ($statementDays as $day) {
             $daysArr['day'] = date('d', $day->timestamp);
