@@ -179,6 +179,9 @@ class IndexController extends ControllerBase
         $currYear = date('Y');
         $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear);
         $days = [];
+         do {
+             $statementDays = TochkaStatementDays::findByMonthYear(--$currMonth, $currYear);
+         } while($statementDays->count() == 0);
         foreach ($statementDays as $k=>$day) {
             $actual = date('d.m.Y', strtotime(TochkaStatements::findFirst(['conditions'=>'id = ?0', 'bind' => [$day->tochka_statement_id]])->timestamp));
             $daysArr['day'] = date('d', $day->timestamp);
@@ -191,6 +194,7 @@ class IndexController extends ControllerBase
             $days[] = $daysArr;
         }
         $jsonArr['actual'] = $actual;
+
         $yearsArr = ['2017'];
         $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
         foreach ($statMonths as $val) {
