@@ -170,16 +170,23 @@ class IndexController extends ControllerBase
     {
         $result = $jsonArr = [];
         $house = Houses::findById($house_id);
+	    $street = Streets::findById($house->street_id);
+
 	    $jsonArr['code'] = self::STATUS_CODE_OK;
 	    $jsonArr['name'] = self::NAME_OK;
         if($house->account_id == 0) {
-        	$jsonArr['result'] = null;
+	        $jsonArr['result'] = [
+		        'id' => $house->id,
+		        'address' => $street->name . ', ' . $house->number,
+		        'img' => [
+			        'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
+		        ],
+		        'bills' => null
+	        ];
 	        header('Content-Type: text/html; charset=utf-8');
 	        header('Content-Type: application/json');
 	        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
         }
-        $street = Streets::findById($house->street_id);
-
 
         $daysArr = [];
         $currMonth = date('m');
@@ -203,7 +210,6 @@ class IndexController extends ControllerBase
             $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
-        $jsonArr['actual'] = date('d.m.Y', strtotime($tochkaStatement->timestamp));
 
         $yearsArr = ['2017'];
         $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
@@ -228,7 +234,7 @@ class IndexController extends ControllerBase
                 'front' =>  'http://' . $this->config->common->front . '/' . $this->config->common->img . '/' . $house->photo_url
             ],
             'bills' => $bills,
-            'actual' => $jsonArr['actual']
+	        'actual' => date('d.m.Y', strtotime($tochkaStatement->timestamp))
             ];
 
         header('Content-Type: text/html; charset=utf-8');
