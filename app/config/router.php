@@ -10,11 +10,7 @@ $router->add('/admin/aut(h|h/)', [
     'controller' => 'auth',
     'action'     => 'login'
 ]);
-$router->add('/admin/:controller|:controller/', [
-    'namespace'  => 'rsu\controllers\admin',
-    'controller' => 'admin',
-    'action'     => 'index'
-]);
+
 $router->add('/admin/:controller/:action/:params', [
     'namespace'  => 'rsu\controllers\admin',
     'controller' => 1,
@@ -36,6 +32,19 @@ $router->add('/admi(n|n/)', [
     'controller' => 'statements',
     'action'     => 'list'
 ]);
+
+$router->add('/admin/house(s|s/)', [
+	'namespace'  => 'rsu\controllers\admin',
+	'controller' => 'houses',
+	'action'     => 'index'
+]);
+
+$router->add('/admi(n|n/)', [
+	'namespace'  => 'rsu\controllers\admin',
+	'controller' => 'admin',
+	'action'     => 'index'
+]);
+
 $router->setDefaultNamespace('rsu\controllers');
 
 $router->handle();

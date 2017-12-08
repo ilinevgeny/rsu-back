@@ -14,7 +14,9 @@ class AuthController extends ControllerBase
 
     public function indexAction()
     {
-
+	    $this->view->pick("admin/index");
+	    $this->view->setVar('statementActive', '');
+	    $this->view->setVar('mainActive', 'active');
     }
     public function loginAction()
     {

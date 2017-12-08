@@ -27,10 +27,10 @@
 <!--                    <a class="nav-link --><?//=$mainActive ?><!--" href="/admin/">Главная</a>-->
                 </li>
                 <li class="nav-item ">
-                    <a class="nav-link <?= $statementActive ?>" href="/admin/statements">Выписки</a>
+                    <a class="nav-link <?= isset($statementActive)? $statementActive: '' ?>" href="/admin/statements">Выписки</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin/houses">Дома</a>
+                    <a class="nav-link <?= isset($housesActive)? $housesActive: '' ?>" href="/admin/houses">Дома</a>
                 </li>
             </ul>
         </div>

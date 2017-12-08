@@ -25,7 +25,7 @@ body {
 .active {
 
 }
-.statement-table td {
+.statement-table td, .houses-table td{
     border: 1px solid #cecece;
     padding: 5px;
     vertical-align: text-top;
@@ -38,7 +38,7 @@ body {
     font-size: small;
 }
 
-.statement-table th {
+.statement-table th, .houses-table th{
     background-color: #dcdcdc;
     text-align: center !important;
 }
@@ -65,6 +65,13 @@ form.login {
     height: 10rem;
 }
 
+.gallery-item_img {
+    width: 160px;
+    height: 160px;
+    background-color: #ccc;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
 .login .btn-primary {
     width: 18rem;
 }

@@ -87,7 +87,7 @@
     .navbar {
         margin-top: 0px !important;
     }
-    .statement-table td {
+    .statement-table td, .houses-table td {
         font-size: .8rem;
     }
     .purpose-column a{

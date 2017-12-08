@@ -3,13 +3,12 @@ $( document ).ready(function() {
 });
 // if (screen.width < 980) {
     $('td').bind('click', function (e) {
-        if($(e.currentTarget).attr('class') == 'purpose-column' ) {
+        if($(e.currentTarget).attr('class') == 'purpose-column' || $(this).parent().attr('data') == 'houses' ) {
 
         } else {
             var $this = $(this), $parentTR = $this.closest('tr'), id = $this.parent().attr('id');
-
-            console.log(id);
-            var buttonsObj = "<tr class='row-record-edit'><td colspan='3'><a href='/admin/statements/edit/"+ id +"' class='btn btn-primary'>Редактировать</a></td>" +
+            var route = $this.parent().attr('data');
+            var buttonsObj = "<tr class='row-record-edit'><td colspan='3'><a href='/admin/" + route + "/edit/"+ id +"' class='btn btn-primary'>Редактировать</a></td>" +
                 "<td><a href='#' class='remove-record-popup btn btn-danger'>Удалить</a></td>" +
                 "<td><a class='btn  btn-outline-primary close-toolbar' href=\"#\">&times;</a></td></tr>";
             if($this.parent().parent().find('.row-record-edit').length >= 1) {

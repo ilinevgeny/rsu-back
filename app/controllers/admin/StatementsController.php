@@ -42,7 +42,7 @@ class StatementsController extends ControllerBase
                 </tr>';
         foreach ($records as $record) {
             $date = date('d.m.Y', strtotime(TochkaStatementDays::findById($record->days_id)->date));
-            $tableRecords .= '<tr id="' . $record->id . '" class="row-record"><td class="id-column">' . $record->id . '</td><td>' . $date . '</td>
+            $tableRecords .= '<tr data="statements" id="' . $record->id . '" class="row-record"><td class="id-column">' . $record->id . '</td><td>' . $date . '</td>
                     <td>' . $record->sum . '</td>
                     <td class="purpose-column"><a href="/admin/statements/edit/' . $record->id . '">' . $record->purpose . '</a></td>
                     <td>' . $record->counterparty . '</td>

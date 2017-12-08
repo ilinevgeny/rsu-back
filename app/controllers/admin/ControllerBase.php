@@ -66,14 +66,15 @@ class ControllerBase extends Controller
             'edit' => 'странице редактирования'
         ];
 //        print_r($controllerName . ' ' .$actionName); exit;
-        $arrControllers = ['admin', 'statements'];
+        $arrControllers = ['admin', 'statements', 'houses'];
         if (in_array($controllerName, $arrControllers) && !$user->isAuthorized()) {
-
             $this->flash->error ('Нет доступа к  ' . $arrPages[$actionName] );
             $dispatcher->forward([
                         'controller' => 'auth',
                         'action' => 'login'
                     ]);
+        } elseif ($controllerName == 'auth' && !$user->isAuthorized()) {
+	        $this->flash->error ('Пожалуйста, авторизуйтесь!');
         }
     }
 }

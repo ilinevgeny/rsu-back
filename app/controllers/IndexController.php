@@ -386,20 +386,6 @@ class IndexController extends ControllerBase
         return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
 
     }
-    /**
-     * @param $name
-     * @param $id
-     * @return string
-     */
-    private function getUniqueCode($name, $id = null)
-    {
-        $code = strtolower(Utils::getTranslate(preg_replace('/\s/ui', '-',
-            preg_replace('/\.|\,|\s\+|\+/ui', '', Utils::trimmingText(trim($name))))));
-        if (Houses::findFirst(['conditions' => 'photo_url = ?0', 'bind' => [$code]])) {
-            $code = $code . '-' . $id;
-        }
-        return $code;
-    }
 
     public function createCategoryAction()
     {

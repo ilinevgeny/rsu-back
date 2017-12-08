@@ -2,6 +2,8 @@
 
 namespace rsu\Service;
 
+use rsu\models\Houses;
+
 class Utils
 {
     public static function getTranslate($string)
@@ -84,4 +86,19 @@ class Utils
         }
         return $string;
     }
+
+	/**
+	 * @param $name
+	 * @param $id
+	 * @return string
+	 */
+	public static function getUniqueCode($name, $id = null)
+	{
+		$code = strtolower(Utils::getTranslate(preg_replace('/\s/ui', '-',
+			preg_replace('/\.|\,|\s\+|\+/ui', '', Utils::trimmingText(trim($name))))));
+		if (Houses::findFirst(['conditions' => 'photo_url = ?0', 'bind' => [$code]])) {
+			$code = $code . '-' . $id;
+		}
+		return $code;
+	}
 }

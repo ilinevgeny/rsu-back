@@ -1,0 +1,33 @@
+<?= $this->getContent() ?>
+<form class="houses-edit-form" action="" method="post" enctype="multipart/form-data">
+	<div class="gallery-item_img">
+		<img  src="<?= $img ?>" width="100%" />
+	</div>
+	<div class="form-group">
+		<label for="city">Город
+			<input type="text" class="form-control house-edit-input" value="<?= $house['city'] ?>" name="city"/>
+		</label>
+	</div>
+	<div class="form-group">
+		<label for="street">Улица
+			<input type="text" class="house-edit-input form-control" value="<?= $house['street'] ?>" name="street"/>
+		</label>
+	</div>
+	<div class="form-group">
+		<label for="number">Номер
+			<input type="text" class="house-edit-input form-control" value="<?= $house['number'] ?>" name="number"/>
+		</label>
+	</div>
+	<div class="form-group">
+		<label for="account">Счет
+			<input type="text" class="house-edit-input form-control" value="<?= $house['account'] ?>" name="account"/>
+		</label>
+	</div>
+	<div class="form-group">
+		<label for="picture">Фото
+			<input type="file" size="500" class="house-edit-input form-control" name="picture"/>
+		</label>
+	</div>
+	<input class="btn btn-primary"  type="submit" value="Отправить" />
+	<a  class="btn btn-outline-primary" href="/admin/houses/">Отмена</a>
+</form>
