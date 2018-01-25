@@ -56,9 +56,7 @@ class TochkaUploader extends Component
 			    $tochkaId = $this->getTochkaAccountId($token['access_token'], $house['account_id'], $dayArr);
 			    $tochkaStatement = $this->getTochkaAccount($tochkaId, $token['access_token']);
                 foreach ($tochkaStatement as $k => $v) {
-//                    $timeStatement = ($k == '@attributes') ? $v['time'] : '';
-                    if($k == 'data') {
-//                            echo $tochkaStatement['data']['statement_response_v1']['start_date'] . PHP_EOL;
+                    if($k == 'data' && isset($tochkaStatement['data']['statement_response_v1'])) {
                         $statement->date_start = $tochkaStatement['data']['statement_response_v1']['start_date'];
                         $statement->date_end = $tochkaStatement['data']['statement_response_v1']['end_date'];
                         $statement->saldo_in = $tochkaStatement['data']['statement_response_v1']['saldo_in'];
@@ -76,7 +74,31 @@ class TochkaUploader extends Component
                                         ['conditions' => 'date = ?0', 'bind'=> [$day['@attributes']['date']]]);
 
                                     if ($tochkaStatementDaysResult) {
-//                                            echo $day['@attributes']['date'] . PHP_EOL;
+	                                    echo 'Обновляем дату ' . $day['@attributes']['date'] . PHP_EOL;
+	                                    $tochkaStatementDaysResult->tochka_statement_id = $statement->id;
+                                        $tochkaStatementDaysResult->date = $day['@attributes']['date'];
+                                        $tochkaStatementDaysResult->day_saldo_out = $day['@attributes']['day_saldo_out'];
+                                        $tochkaStatementDaysResult->day_saldo_in = $day['@attributes']['day_saldo_in'];
+                                        $tochkaStatementDaysResult->day_turn_over_dt = $day['@attributes']['day_turn_over_dt'];
+                                        $tochkaStatementDaysResult->day_turn_over_kt = $day['@attributes']['day_turn_over_kt'];
+                                        $tochkaStatementDaysResult->total_records = count($day['records']['record']);
+	                                    if ($tochkaStatementDaysResult->update()) {
+		                                    TochkaStatementRecords::find(
+			                                    ['conditions' => 'days_id = ?0', 'bind'=> [$tochkaStatementDaysResult->id]])->delete();
+		                                    if(isset($day['records']['record']['@attributes'])) {
+			                                    $day['records']['record'][]['@attributes'] =  $day['records']['record']['@attributes'];
+			                                    unset($day['records']['record']['@attributes']);
+		                                    }
+		                                    foreach($day['records']['record'] as $record) {
+			                                    $tochkaStatementRecord = new TochkaStatementRecords();
+			                                    $tochkaStatementRecord->days_id = $tochkaStatementDaysResult->id;
+			                                    $tochkaStatementRecord->debit = ($record['@attributes']['debit'] == 'true') ? 1 : 0;
+			                                    $tochkaStatementRecord->purpose = $record['@attributes']['purpose'];
+			                                    $tochkaStatementRecord->sum = $record['@attributes']['sum'];
+			                                    $tochkaStatementRecord->counterparty = $record['@attributes']['related_name'];
+			                                    $tochkaStatementRecord->create();
+		                                    }
+	                                    }
                                     } else {
                                         echo 'Записываем дату ' . $day['@attributes']['date'] . PHP_EOL;
                                         $tochkaStatementDay = new TochkaStatementDays();

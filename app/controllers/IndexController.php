@@ -188,31 +188,50 @@ class IndexController extends ControllerBase
 	        return json_encode($jsonArr, JSON_UNESCAPED_UNICODE);
         }
 
-        $daysArr = [];
-        $currMonth = date('m');
-        $currYear = date('Y');
 	    $tochkaStatement = TochkaStatements::findFirst(
 		    ['conditions'=>'tochka_account = ?0', 'bind' => [$house->account_id]]);
-        $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear, $tochkaStatement->id);
-        $days = [];
-        if ($statementDays->count() == 0) {
-	        do {
-		        $statementDays = TochkaStatementDays::findByMonthYear(--$currMonth, $currYear, $tochkaStatement->id);
-	        } while($statementDays->count() == 0);
-        }
+
+        $daysArr = $yearsArr = $prevYearsArr = [];
+
+        $currMonth = date('m');
+        $currYear = date('Y');
+	    for ($i = 2016; $i < $currYear; $i++) {
+
+		    $statementMonthInYear =  TochkaStatementDays::find([
+			    'columns' => 'DISTINCT(MONTH(date)) as month',
+			    'order' => 'date DESC',
+			    'conditions' => 'YEAR(date) = ?0',
+			    'bind' => [$i]]);
+		    if($statementMonthInYear->count() > 0) {
+			    $yearsArr[] = $i;
+			    foreach ($statementMonthInYear as $item) {
+				    $prevYearsArr[$i][] = ['month'=>$item->month, 'days'=>null] ;
+			    }
+		    }
+
+
+	    }
+	    $statementDays = TochkaStatementDays::findByMonthYear($currMonth, $currYear, $tochkaStatement->id);
+
+	    $days = [];
+		    if ($statementDays->count() == 0) {
+			    do {
+				    $statementDays = TochkaStatementDays::findByMonthYear(--$currMonth, $currYear, $tochkaStatement->id);
+			    } while($statementDays->count() == 0);
+		    }
 
         foreach ($statementDays as $k=>$day) {
             $daysArr['day'] = date('d', $day->timestamp);
             $daysArr['saldo_in'] = $day->day_saldo_in;
             $daysArr['saldo_out'] = $day->day_saldo_out;
-//            $daysArr['сounterparty'] = '';
-//            $daysArr['category'] = '';
             $daysArr['transactions'] = $this->getTochkaRecords($day->id, $day->date);
             $days[] = $daysArr;
         }
 
-        $yearsArr = ['2017'];
-        $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC'])->toArray();
+
+        $statMonths = TochkaStatementDays::find(['columns'=>array('month'=>'distinct (MONTH(date))'), 'order'=>'date DESC',
+                                                 'conditions' => 'YEAR(date) = ?0',
+                                                 'bind' => [$currYear]])->toArray();
         foreach ($statMonths as $val) {
 
             if ($val['month'] == $currMonth) {
@@ -224,8 +243,9 @@ class IndexController extends ControllerBase
         }
 
         $bills = [];
+        $bills[] = ['year' => $currYear, 'months'=>$monthsArr];
         foreach ($yearsArr as $year) {
-            $bills[] = ['year' => $year, 'months'=>$monthsArr];
+            $bills[] = ['year' => "  $year ", 'months'=>$prevYearsArr[$year]];
         }
         $jsonArr['result'] = [
             'id' => $house->id,
