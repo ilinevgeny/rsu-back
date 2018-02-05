@@ -1,6 +1,6 @@
 <?php
 
-namespace rsu\Service;
+namespace rsu\service;
 
 use rsu\models\Houses;
 

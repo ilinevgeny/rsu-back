@@ -7,7 +7,7 @@ namespace rsu\controllers\admin;
 use rsu\models\Cities;
 use rsu\models\Houses;
 use rsu\models\Streets;
-use rsu\Service\Utils;
+use rsu\service\Utils;
 
 class HousesController extends ControllerBase
 {
