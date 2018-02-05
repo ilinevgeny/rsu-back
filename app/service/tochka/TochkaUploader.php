@@ -53,6 +53,11 @@ class TochkaUploader extends Component
 	    foreach ($listHousesIds as $house) {
 	    	if($house['account_id'] != 0) {
                 $statement = TochkaStatements::findByAccountId($house['account_id']);
+                if (!$statement) {
+                    $statement = new TochkaStatements();
+                    $statement->tochka_account = $house['account_id'];
+                }
+
 			    $tochkaId = $this->getTochkaAccountId($token['access_token'], $house['account_id'], $dayArr);
 			    $tochkaStatement = $this->getTochkaAccount($tochkaId, $token['access_token']);
                 foreach ($tochkaStatement as $k => $v) {
@@ -66,7 +71,16 @@ class TochkaUploader extends Component
                         $statement->timestamp = date('Y-m-d H:i:s');
 
                         //@todo add exception to create
-                        if($statement->update()) {
+                        if($statement->save()) {
+                            //replace array assoc from tochka to array countable; array assoc, if just one day in recordset
+                            if(isset($tochkaStatement['data']['statement_response_v1']['days']['day']['@attributes'])) {
+                                $tochkaStatement['data']['statement_response_v1']['days']['day'][] = [
+                                    '@attributes' => $tochkaStatement['data']['statement_response_v1']['days']['day']['@attributes'],
+                                    'records' => $tochkaStatement['data']['statement_response_v1']['days']['day']['records']];
+                                unset($tochkaStatement['data']['statement_response_v1']['days']['day']['@attributes']);
+                                unset($tochkaStatement['data']['statement_response_v1']['days']['day']['records']);
+
+                            }
                             foreach ($tochkaStatement['data']['statement_response_v1']['days'] as $arrData) {
 
                                 foreach ($arrData as $day) {
